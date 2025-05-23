@@ -9,11 +9,20 @@ import 'leaflet/dist/leaflet.css';
 
 interface Address {
 	display_name: string;
+	tags?: {
+		'addr:housenumber'?: string;
+		'addr:street'?: string;
+		'addr:city'?: string;
+		amenity?: string;
+		'name:en'?: string;
+		opening_hours?: string;
+	};
 }
 
 export default function MapWithDraw() {
 	const mapRef = useRef<HTMLDivElement>(null);
 	const [addresses, setAddresses] = useState<Address[]>([]);
+	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
 		if (!mapRef.current) return;
@@ -39,6 +48,7 @@ export default function MapWithDraw() {
 		map.addControl(drawControl);
 
 		map.on(L.Draw.Event.CREATED, async function (event: any) {
+			setLoading(true);
 			const layer = event.layer;
 			drawnItems.clearLayers();
 			drawnItems.addLayer(layer);
@@ -69,15 +79,17 @@ export default function MapWithDraw() {
 				if (!res.ok) {
 					console.error('Ошибка запроса:', res.statusText);
 					setAddresses([]);
+					setLoading(false);
 					return;
 				}
 
 				const data = await res.json();
-
 				setAddresses(data.elements || []);
+				setLoading(false);
 			} catch (err) {
 				console.error('Ошибка Overpass API:', err);
 				setAddresses([]);
+				setLoading(false);
 			}
 		});
 
@@ -87,25 +99,86 @@ export default function MapWithDraw() {
 	}, []);
 
 	return (
-		<div className='w-full'>
-			<div ref={mapRef} id='map' className='h-[500px] w-full rounded shadow' />
-			<div className='mt-4'>
-				<h2 className='font-bold mb-2'>Найденные адреса:</h2>
-				{addresses.length === 0 ? (
-					<p>Ничего не найдено</p>
-				) : (
-					<ul className='list-disc list-inside'>
-						{addresses.map((addr, i) => (
-							<li key={i}>
-								{addr.tags?.['addr:housenumber']} {addr.tags?.['addr:street']},{' '}
-								{addr.tags?.['addr:city']}
-								{addr.tags?.amenity && ` (${addr.tags.amenity})`}
-								{addr.tags?.['name:en'] && `: ${addr.tags['name:en']}`}
-								{addr.tags?.opening_hours && ` - ${addr.tags.opening_hours}`}
-							</li>
-						))}
-					</ul>
-				)}
+		<div className='flex flex-col md:flex-row gap-6 w-full h-[calc(100vh-150px)]'>
+			{/* Map Section - Left Side */}
+			<div className='w-full md:w-3/5 h-full'>
+				<div
+					ref={mapRef}
+					id='map'
+					className='h-full w-full rounded-lg shadow-lg border border-gray-200'
+				/>
+			</div>
+
+			{/* Addresses Section - Right Side */}
+			<div className='w-full md:w-2/5 h-full overflow-auto'>
+				<div className='bg-white rounded-lg shadow-lg p-6 h-full border border-gray-200'>
+					<h2 className='text-2xl font-bold mb-4 text-gray-800 border-b pb-2'>
+						Найденные адреса
+					</h2>
+
+					{loading ? (
+						<div className='flex items-center justify-center h-32'>
+							<div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500'></div>
+							<span className='ml-2 text-gray-600'>Загрузка адресов...</span>
+						</div>
+					) : addresses.length === 0 ? (
+						<div className='flex flex-col items-center justify-center h-32 text-gray-500'>
+							<svg
+								xmlns='http://www.w3.org/2000/svg'
+								className='h-12 w-12 mb-2'
+								fill='none'
+								viewBox='0 0 24 24'
+								stroke='currentColor'>
+								<path
+									strokeLinecap='round'
+									strokeLinejoin='round'
+									strokeWidth={1.5}
+									d='M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7'
+								/>
+							</svg>
+							<p className='text-center'>
+								Нарисуйте область на карте, чтобы увидеть адреса
+							</p>
+						</div>
+					) : (
+						<div className='space-y-3'>
+							<p className='text-sm text-gray-600 mb-2'>
+								Найдено адресов: {addresses.length}
+							</p>
+							{addresses.map((addr, i) => (
+								<div
+									key={i}
+									className='p-3 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors'>
+									<div className='font-medium text-gray-800'>
+										{addr.tags?.['addr:housenumber'] || ''}{' '}
+										{addr.tags?.['addr:street'] || ''}
+									</div>
+									{addr.tags?.['addr:city'] && (
+										<div className='text-sm text-gray-600'>
+											{addr.tags['addr:city']}
+										</div>
+									)}
+									{addr.tags?.amenity && (
+										<div className='text-sm text-blue-600 mt-1'>
+											{addr.tags.amenity}
+										</div>
+									)}
+									{addr.tags?.['name:en'] && (
+										<div className='text-sm italic mt-1'>
+											{addr.tags['name:en']}
+										</div>
+									)}
+									{addr.tags?.opening_hours && (
+										<div className='text-xs text-gray-500 mt-1'>
+											<span className='font-medium'>Часы работы:</span>{' '}
+											{addr.tags.opening_hours}
+										</div>
+									)}
+								</div>
+							))}
+						</div>
+					)}
+				</div>
 			</div>
 		</div>
 	);
