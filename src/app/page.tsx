@@ -1,4 +1,4 @@
-import MapWithDraw from '@/components/MapWithDraw';
+import MapClientWrapper from '@/components/MapClientWrapper';
 
 export default function HomePage() {
 	return (
@@ -61,7 +61,7 @@ export default function HomePage() {
 					</div>
 
 					{/* Map Component */}
-					<MapWithDraw />
+					<MapClientWrapper />
 				</div>
 			</div>
 

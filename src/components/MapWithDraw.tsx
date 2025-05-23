@@ -38,8 +38,15 @@ export default function MapWithDraw() {
 		const drawControl = new L.Control.Draw({
 			edit: { featureGroup: drawnItems },
 			draw: {
-				polygon: true,
-				rectangle: true,
+				polygon: {
+					allowIntersection: false,
+					showArea: true
+				},
+				rectangle: {
+					shapeOptions: {
+						color: '#3388ff'
+					}
+				},
 				circle: false,
 				marker: false,
 				polyline: false,
@@ -47,7 +54,7 @@ export default function MapWithDraw() {
 		});
 		map.addControl(drawControl);
 
-		map.on(L.Draw.Event.CREATED, async function (event: any) {
+		map.on(L.Draw.Event.CREATED, async function (event: { layer: L.Polygon | L.Rectangle }) {
 			setLoading(true);
 			const layer = event.layer;
 			drawnItems.clearLayers();
