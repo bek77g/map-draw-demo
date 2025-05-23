@@ -40,12 +40,12 @@ export default function MapWithDraw() {
 			draw: {
 				polygon: {
 					allowIntersection: false,
-					showArea: true
+					showArea: true,
 				},
 				rectangle: {
 					shapeOptions: {
-						color: '#3388ff'
-					}
+						color: '#3388ff',
+					},
 				},
 				circle: false,
 				marker: false,
@@ -54,19 +54,21 @@ export default function MapWithDraw() {
 		});
 		map.addControl(drawControl);
 
-		map.on(L.Draw.Event.CREATED, async function (event: { layer: L.Polygon | L.Rectangle }) {
-			setLoading(true);
-			const layer = event.layer;
-			drawnItems.clearLayers();
-			drawnItems.addLayer(layer);
+		map.on(
+			L.Draw.Event.CREATED,
+			async function (event: { layer: L.Polygon | L.Rectangle }) {
+				setLoading(true);
+				const layer = event.layer;
+				drawnItems.clearLayers();
+				drawnItems.addLayer(layer);
 
-			const bounds = layer.getBounds();
-			const south = bounds.getSouth();
-			const west = bounds.getWest();
-			const north = bounds.getNorth();
-			const east = bounds.getEast();
+				const bounds = layer.getBounds();
+				const south = bounds.getSouth();
+				const west = bounds.getWest();
+				const north = bounds.getNorth();
+				const east = bounds.getEast();
 
-			const query = `
+				const query = `
       [out:json][timeout:25];
       (
         node["addr:housenumber"](${south},${west},${north},${east});
@@ -76,29 +78,30 @@ export default function MapWithDraw() {
       out center;
     `;
 
-			try {
-				const res = await fetch('https://overpass-api.de/api/interpreter', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-					body: query,
-				});
+				try {
+					const res = await fetch('https://overpass-api.de/api/interpreter', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+						body: query,
+					});
 
-				if (!res.ok) {
-					console.error('Ошибка запроса:', res.statusText);
+					if (!res.ok) {
+						console.error('Ошибка запроса:', res.statusText);
+						setAddresses([]);
+						setLoading(false);
+						return;
+					}
+
+					const data = await res.json();
+					setAddresses(data.elements || []);
+					setLoading(false);
+				} catch (err) {
+					console.error('Ошибка Overpass API:', err);
 					setAddresses([]);
 					setLoading(false);
-					return;
 				}
-
-				const data = await res.json();
-				setAddresses(data.elements || []);
-				setLoading(false);
-			} catch (err) {
-				console.error('Ошибка Overpass API:', err);
-				setAddresses([]);
-				setLoading(false);
 			}
-		});
+		);
 
 		return () => {
 			map.remove();
@@ -117,8 +120,8 @@ export default function MapWithDraw() {
 			</div>
 
 			{/* Addresses Section - Right Side */}
-			<div className='w-full md:w-2/5 h-full overflow-auto'>
-				<div className='bg-white rounded-lg shadow-lg p-6 h-full border border-gray-200'>
+			<div className='w-full md:w-2/5 h-full overflow-hidden flex flex-col'>
+				<div className='bg-white rounded-lg shadow-lg p-6 h-full border border-gray-200 flex flex-col'>
 					<h2 className='text-2xl font-bold mb-4 text-gray-800 border-b pb-2'>
 						Найденные адреса
 					</h2>
@@ -148,41 +151,43 @@ export default function MapWithDraw() {
 							</p>
 						</div>
 					) : (
-						<div className='space-y-3'>
+						<div className='flex flex-col'>
 							<p className='text-sm text-gray-600 mb-2'>
 								Найдено адресов: {addresses.length}
 							</p>
-							{addresses.map((addr, i) => (
-								<div
-									key={i}
-									className='p-3 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors'>
-									<div className='font-medium text-gray-800'>
-										{addr.tags?.['addr:housenumber'] || ''}{' '}
-										{addr.tags?.['addr:street'] || ''}
+							<div className='overflow-y-scroll pr-2 space-y-3 h-[calc(100vh-300px)]'>
+								{addresses.map((addr, i) => (
+									<div
+										key={i}
+										className='p-3 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors'>
+										<div className='font-medium text-gray-800'>
+											{addr.tags?.['addr:housenumber'] || ''}{' '}
+											{addr.tags?.['addr:street'] || ''}
+										</div>
+										{addr.tags?.['addr:city'] && (
+											<div className='text-sm text-gray-600'>
+												{addr.tags['addr:city']}
+											</div>
+										)}
+										{addr.tags?.amenity && (
+											<div className='text-sm text-blue-600 mt-1'>
+												{addr.tags.amenity}
+											</div>
+										)}
+										{addr.tags?.['name:en'] && (
+											<div className='text-sm italic mt-1'>
+												{addr.tags['name:en']}
+											</div>
+										)}
+										{addr.tags?.opening_hours && (
+											<div className='text-xs text-gray-500 mt-1'>
+												<span className='font-medium'>Часы работы:</span>{' '}
+												{addr.tags.opening_hours}
+											</div>
+										)}
 									</div>
-									{addr.tags?.['addr:city'] && (
-										<div className='text-sm text-gray-600'>
-											{addr.tags['addr:city']}
-										</div>
-									)}
-									{addr.tags?.amenity && (
-										<div className='text-sm text-blue-600 mt-1'>
-											{addr.tags.amenity}
-										</div>
-									)}
-									{addr.tags?.['name:en'] && (
-										<div className='text-sm italic mt-1'>
-											{addr.tags['name:en']}
-										</div>
-									)}
-									{addr.tags?.opening_hours && (
-										<div className='text-xs text-gray-500 mt-1'>
-											<span className='font-medium'>Часы работы:</span>{' '}
-											{addr.tags.opening_hours}
-										</div>
-									)}
-								</div>
-							))}
+								))}
+							</div>
 						</div>
 					)}
 				</div>
