@@ -69,8 +69,17 @@ export default function HomePage() {
 			<footer className='bg-gray-800 text-gray-300 py-4 px-6 mt-8'>
 				<div className='container mx-auto text-center text-sm'>
 					<p>
-						© {new Date().getFullYear()} Карта с адресами. Данные предоставлены
-						OpenStreetMap.
+						© {new Date().getFullYear()} Карта с адресами. Разработано bek77g.
+						Данные предоставлены OpenStreetMap.
+					</p>
+					<p className='mt-2'>
+						<a
+							href='https://github.com/bek77g'
+							target='_blank'
+							rel='noopener noreferrer'
+							className='text-blue-400 hover:text-blue-300 transition-colors'>
+							GitHub
+						</a>
 					</p>
 				</div>
 			</footer>
