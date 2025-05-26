@@ -11,13 +11,10 @@ export const AddressCard = ({ address }: AddressCardProps) => {
 	const [showDetails, setShowDetails] = useState(false);
 	const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
 	const cardRef = useRef<HTMLDivElement>(null);
-	// Добавляем ref для tooltip
 	const tooltipRef = useRef<HTMLDivElement>(null);
 
-	// Обработчик клика вне tooltip для его закрытия
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			// Проверяем, что клик был не по карточке и не по tooltip
 			if (
 				showDetails &&
 				cardRef.current &&
@@ -29,39 +26,30 @@ export const AddressCard = ({ address }: AddressCardProps) => {
 			}
 		};
 
-		// Добавляем обработчик клика на документ
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => {
-			// Удаляем обработчик при размонтировании компонента
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
 	}, [showDetails]);
 
-	// Обновление позиции tooltip с учетом границ экрана
 	useEffect(() => {
 		if (showDetails && cardRef.current) {
 			const rect = cardRef.current.getBoundingClientRect();
 			const windowWidth = window.innerWidth;
 			const windowHeight = window.innerHeight;
 
-			// Базовые координаты tooltip
 			let top = rect.top + window.scrollY + rect.height / 2;
 			let left = rect.right + window.scrollX + 10;
 
-			// Проверяем, поместится ли tooltip справа
-			const tooltipWidth = 300; // Примерная ширина tooltip
+			const tooltipWidth = 300;
 			if (left + tooltipWidth > windowWidth) {
-				// Если не помещается справа, размещаем слева от карточки
 				left = rect.left + window.scrollX - tooltipWidth - 10;
 			}
 
-			// Проверяем, не выходит ли tooltip за верхнюю или нижнюю границу
-			const tooltipHeight = 300; // Примерная высота tooltip
+			const tooltipHeight = 300;
 			if (top - tooltipHeight / 2 < window.scrollY) {
-				// Если выходит за верхнюю границу
 				top = window.scrollY + tooltipHeight / 2 + 10;
 			} else if (top + tooltipHeight / 2 > window.scrollY + windowHeight) {
-				// Если выходит за нижнюю границу
 				top = window.scrollY + windowHeight - tooltipHeight / 2 - 10;
 			}
 
@@ -94,7 +82,6 @@ export const AddressCard = ({ address }: AddressCardProps) => {
 				</div>
 			)}
 
-			{/* Tooltip with full address object as code */}
 			{showDetails && (
 				<div
 					ref={tooltipRef}
@@ -103,14 +90,14 @@ export const AddressCard = ({ address }: AddressCardProps) => {
 						top: `${tooltipPosition.top}px`,
 						left: `${tooltipPosition.left}px`,
 						transform: 'translateY(-50%)',
-						pointerEvents: 'auto', // Изменено на 'auto', чтобы tooltip мог получать события мыши
+						pointerEvents: 'auto',
 					}}>
 					<div className='flex justify-between items-center mb-2'>
 						<span className='font-bold'>Данные адреса</span>
 						<button
 							className='text-gray-300 hover:text-white'
 							onClick={e => {
-								e.stopPropagation(); // Предотвращаем всплытие события
+								e.stopPropagation();
 								setShowDetails(false);
 							}}>
 							✕
