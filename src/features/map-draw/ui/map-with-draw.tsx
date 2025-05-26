@@ -1,6 +1,6 @@
 'use client';
 
-import L from 'leaflet';
+import L, { LatLngExpression } from 'leaflet';
 import 'leaflet-draw';
 import { useEffect, useRef, useState } from 'react';
 
@@ -21,7 +21,7 @@ export const MapWithDraw = () => {
 		if (!mapRef.current) return;
 
 		const map = L.map(mapRef.current).setView(
-			MAP_CONFIG.DEFAULT_CENTER,
+			MAP_CONFIG.DEFAULT_CENTER as LatLngExpression,
 			MAP_CONFIG.DEFAULT_ZOOM
 		);
 		L.tileLayer(MAP_CONFIG.TILE_LAYER).addTo(map);
