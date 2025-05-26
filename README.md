@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Карта с адресами (Map Draw Demo)
 
-## Getting Started
+## Описание проекта
 
-First, run the development server:
+Это веб-приложение, которое позволяет пользователям выделять области на карте и получать информацию об адресах, находящихся в выбранной области. Приложение использует OpenStreetMap и Overpass API для получения данных о местоположениях.
+
+## Функциональность
+
+- Интерактивная карта с возможностью рисования областей
+- Поддержка рисования многоугольников и прямоугольников
+- Отображение списка адресов в выбранной области
+- Детальная информация о каждом адресе (номер дома, улица, город и т.д.)
+
+## Технологии
+
+- **Next.js** - React-фреймворк для создания веб-приложений
+- **TypeScript** - Типизированный JavaScript
+- **Tailwind CSS** - Утилитарный CSS-фреймворк
+- **Leaflet** - Библиотека для работы с интерактивными картами
+- **Leaflet-Draw** - Плагин для Leaflet, добавляющий функционал рисования на карте
+- **Overpass API** - API для получения данных из OpenStreetMap
+
+## Архитектура
+
+Проект организован по методологии Feature-Sliced Design (FSD), что обеспечивает четкое разделение ответственности и улучшает поддерживаемость кода.
+
+Основные слои:
+
+- **app** - Точка входа в приложение
+- **pages** - Страницы приложения
+- **widgets** - Композиционные компоненты (header, footer, map-widget)
+- **features** - Функциональные модули (map-draw)
+- **entities** - Бизнес-сущности (address)
+- **shared** - Переиспользуемый код (ui, lib, api, config, styles)
+
+## Установка и запуск
 
 ```bash
+# Клонирование репозитория
+git clone https://github.com/bek77g/map-draw-demo.git
+cd map-draw-demo
+
+# Установка зависимостей
+npm install
+# или
+pnpm install
+
+# Запуск в режиме разработки
 npm run dev
-# or
-yarn dev
-# or
+# или
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Откройте [http://localhost:3000](http://localhost:3000) в браузере, чтобы увидеть приложение.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Использование
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Нажмите на кнопку рисования многоугольника или прямоугольника на карте
+2. Выделите интересующую вас область на карте
+3. Просмотрите найденные адреса в панели справа
 
-## Learn More
+## Автор
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[bek77g](https://github.com/bek77g)
